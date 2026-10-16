@@ -65,7 +65,7 @@ if __name__ == '__main__':
         with open(tmp_file, 'wt') as f:
             f.write(exploit_code)
             
-        rc = subprocess.Popen(f'gcc -O3 -s -Icrypto -o {tmp_file[:-2]} {tmp_file} ./crypto/aes.c ./crypto/aes_sbox.c ./crypto/pad.c', shell=True)
+        rc = subprocess.Popen(f'cc -O3 -s -Icrypto -o {tmp_file[:-2]} {tmp_file} ./crypto/aes.c ./crypto/aes_sbox.c ./crypto/pad.c', shell=True)
         
         if rc.wait() != 0:
             print('error compiling the exploit')
