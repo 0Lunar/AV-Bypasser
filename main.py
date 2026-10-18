@@ -42,8 +42,12 @@ if __name__ == '__main__':
     elif os.path.exists(out) and not args.ignore:
         print('out file already exists')
         
-    elif subprocess.Popen('command -v cc 1>/dev/null', shell=True).wait() != 0:
-        print('Missing compiler \'cc\'')
+    elif (
+            (os.name != 'nt' and subprocess.Popen('command -v gcc', stdout=-1, stderr=-1, shell=True).wait() != 0)
+        or 
+            subprocess.Popen('where gcc', shell=True, stdout=-1, stderr=-1).wait() != 0
+        ):
+        print('Missing compiler \'gcc\'')
 
     else:
         with open('code.c', 'rt') as f:
@@ -65,7 +69,7 @@ if __name__ == '__main__':
         with open(tmp_file, 'wt') as f:
             f.write(exploit_code)
             
-        rc = subprocess.Popen(f'cc -O3 -s -Icrypto -o {tmp_file[:-2]} {tmp_file} ./crypto/aes.c ./crypto/aes_sbox.c ./crypto/pad.c', shell=True)
+        rc = subprocess.Popen(f'gcc -O3 -s -Icrypto -o {tmp_file[:-2]} {tmp_file} ./crypto/aes.c ./crypto/aes_sbox.c ./crypto/pad.c', shell=True)
         
         if rc.wait() != 0:
             print('error compiling the exploit')
