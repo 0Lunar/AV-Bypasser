@@ -9,7 +9,6 @@
  */
 #ifdef __unix__
 
-#include <sys/ptrace.h>
 #include <sys/prctl.h>
 #include <sys/types.h>
 #include <sys/mman.h>
@@ -32,9 +31,31 @@ __uint8_t key[] = {
 
 void (* exploit)();
 
+
+int is_debugged(void) {
+    FILE *f = fopen("/proc/self/status", "r");
+    if (!f)
+        return -1;
+
+    char line[256];
+
+    while (fgets(line, sizeof(line), f)) {
+        if (strncmp(line, "TracerPid:", 10) == 0) {
+            int pid = 0;
+            sscanf(line + 10, "%d", &pid);
+            fclose(f);
+            return pid != 0;
+        }
+    }
+
+    fclose(f);
+    return -1;
+}
+
+
 int main ( void ) {
     // anti-debug
-    if (ptrace(PTRACE_TRACEME) == -1) {
+    if (is_debugged()) {
         write(2, "DEBUGGER DETECTED!\n", 19);
         _exit(1);
     }
