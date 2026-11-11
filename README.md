@@ -50,7 +50,7 @@ The Python script acts as the builder. It ingests raw shellcode (non-ELF/non-PE 
 The compiled C executable is engineered to evade both static signatures (via the AES encryption) and dynamic behavioral analysis by utilizing OS-specific APIs:
 
 * **🛑 Anti-Debugging:** 
-  * **Linux:** Employs the `ptrace(PTRACE_TRACEME)` system call to detect if the process is being actively monitored or stepped through by a debugger.
+  * **Linux:** Reads `/proc/self/status` and checks the `TracerPid` field to determine whether the process is being traced by a debugger.
   * **Windows:** Utilizes `IsDebuggerPresent()` and `CheckRemoteDebuggerPresent()` to detect attached debuggers. If a debugger is found, execution is immediately halted.
 * **🔓 In-Memory Decryption:** The payload remains encrypted on disk and is only decrypted in memory at runtime, effectively bypassing static file scanning.
 * **🧠 Secure Allocation:** 
@@ -74,6 +74,22 @@ The compiled C executable is engineered to evade both static signatures (via the
 **Command Line:**
 ```bash
 python main.py -f <path_to_raw_shellcode> -o <output_binary_name>
+```
+
+Per compilare il progetto direttamente, esegui `make` nella directory principale.
+
+### Testing with the assembly test code
+
+An assembly test code has been added to the tests to exercise the AV-Bypasser. You can extract the `.text` section containing the `_start` code from the compiled `shellcode` binary with pwntools and save it as `raw_shellcode.bin`:
+
+```bash
+python -c 'f = open("raw_shellcode.bin", "wb"); f.write(__import__("pwn").ELF("shellcode", False).get_section_by_name(".text").data()); f.close()'
+```
+
+Then provide the raw file as input:
+
+```bash
+python main.py -i -f raw_shellcode.bin -o exploit.elf
 ```
 
 ## 🕵️ Limitations & EDR Detection
