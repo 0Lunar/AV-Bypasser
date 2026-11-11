@@ -15,6 +15,7 @@
 #include <memory.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #define EXPLOIT_SIZE sizeof(buf)
 #define KEY_LENGTH sizeof(key)

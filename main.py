@@ -45,7 +45,7 @@ if __name__ == '__main__':
     elif (
             (os.name != 'nt' and subprocess.Popen('command -v gcc', stdout=-1, stderr=-1, shell=True).wait() != 0)
         or 
-            subprocess.Popen('where gcc', shell=True, stdout=-1, stderr=-1).wait() != 0
+            (os.name == 'nt' and subprocess.Popen('where gcc', shell=True, stdout=-1, stderr=-1).wait() != 0)
         ):
         print('Missing compiler \'gcc\'')
 
